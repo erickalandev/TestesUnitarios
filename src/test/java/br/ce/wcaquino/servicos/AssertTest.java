@@ -46,6 +46,15 @@ public class AssertTest {
 		Usuario u1 = new Usuario("fulano");
 		Usuario u2 = new Usuario("fulano");
 		Assert.assertEquals(u1, u2);
+		/*Agora quando  e comparacao entre instancias teria que ser a mesma classe mesmo
+		 * exemplo o usuario 3 esta recebendo a mesma instancia do usuario 2, e 
+		 * nao criando um objeto novo com a mesma caracteristicas como na etapa anterior*/
+		Usuario u3 = u2;
+		Assert.assertSame(u2, u3);
+		/*se  algo e nulo*/
+		u3=null;
+		Assert.assertTrue(u3==null);
+		Assert.assertNull(u3);
 	}
 
 }
