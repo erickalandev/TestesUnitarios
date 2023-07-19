@@ -6,7 +6,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,14 +47,14 @@ public class LocacaoServiceTest {
 	public void teste() {
 		//cenario
 		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 2, 5.0);
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 2, 5.0));
 				
 		//acao
 		Locacao locacao;
 		try {
-			locacao = locacaoService.alugarFilme(user, filme);
+			locacao = locacaoService.alugarFilme(user, filmes);
 			//verificacao
-			assertThat(locacao.getValor(), is(equalTo(5.0)));
+			assertThat(locacao.getValor(), is(equalTo(5.0)));				
 			assertThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
 			assertThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
 		} catch (Exception e) {
@@ -65,12 +68,12 @@ public class LocacaoServiceTest {
 	public void testLocacao() throws Exception {
 		//cenario
 		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 2, 5.0);
-				
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 2, 5.0));
+		
 		//acao
-		Locacao locacao = locacaoService.alugarFilme(user, filme);
+		Locacao locacao = locacaoService.alugarFilme(user, filmes);
 		//verificacao
-		assertThat(locacao.getValor(), is(equalTo(5.0)));
+		assertThat(locacao.getValor(), is(equalTo(5.0)));				
 		assertThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
 		assertThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
 		
@@ -80,10 +83,10 @@ public class LocacaoServiceTest {
 	public void testLocacao2() throws Exception {
 		//cenario
 		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 2, 5.0);
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 2, 5.0));
 				
 		//acao
-		Locacao locacao = locacaoService.alugarFilme(user, filme);
+		Locacao locacao = locacaoService.alugarFilme(user, filmes);
 		//verificacao
 		error.checkThat(locacao.getValor(), is(equalTo(5.0)));
 		error.checkThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
@@ -91,30 +94,24 @@ public class LocacaoServiceTest {
 		
 	}
 	
-	/*Esse teste do proprio JUnit seria caso estivessemos esperando a excessao e retornando como sucesso, 
-	 * porem caso nao estourasse excessao retornaria como falha.
-	 * Que esta correto por sinal, pois o nosso metodo "testLocacao_filmeSemEstoque()" espera um filme sem estoque*/
-	
-	//Forma Elegante -> quando vc tem certeza que aquela excessao eh somente para esse caso
 	@Test(expected = FilmeSemEstoqueException.class)
 	public void testLocacao_filmeSemEstoque() throws Exception {
 		//cenario
 		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 0, 5.0);
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 0, 4.0));
 				
 		//acao
-		locacaoService.alugarFilme(user, filme);
+		locacaoService.alugarFilme(user, filmes);
 	}
 	
-	//Forma Robusta -> nao precisa passar a excessao esperada no @Test, pois ja compara com a mensagem de erro
 	@Test
 	public void testLocacao_usuarioVazio() throws FilmeSemEstoqueException {
 		// cenario
-		Filme filme = new Filme("Filme 2", 1, 4.0);
+		List<Filme> filmes = Arrays.asList(new Filme("Filme 1", 2, 5.0));
 				
 		//acao
 		try {
-			locacaoService.alugarFilme(null, filme);
+			locacaoService.alugarFilme(null, filmes);
 			fail();
 		} catch (LocadoraException e) {
 			assertThat(e.getMessage(), is("Usuario Vazio"));
@@ -122,7 +119,6 @@ public class LocacaoServiceTest {
 
 	}
 	
-	//Forma nova -> espera o erro antes da execucao do metodo
 	@Test
 	public void testLocacao_FilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
 		//cenario
