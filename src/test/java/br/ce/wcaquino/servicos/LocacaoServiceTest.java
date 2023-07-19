@@ -17,6 +17,8 @@ import org.junit.rules.ExpectedException;
 import br.ce.wcaquino.entidades.Filme;
 import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
+import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
+import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 
 public class LocacaoServiceTest {
@@ -70,7 +72,9 @@ public class LocacaoServiceTest {
 	/*Esse teste do proprio JUnit seria caso estivessemos esperando a excessao e retornando como sucesso, 
 	 * porem caso nao estourasse excessao retornaria como falha.
 	 * Que esta correto por sinal, pois o nosso metodo "testLocacao_filmeSemEstoque()" espera um filme sem estoque*/
-	@Test(expected = Exception.class)
+	
+	//Forma Elegante -> quando vc tem certeza que aquela excessao eh somente para esse caso
+	@Test(expected = FilmeSemEstoqueException.class)
 	public void testLocacao_filmeSemEstoque() throws Exception {
 		//cenario
 		LocacaoService locacaoService = new LocacaoService();
@@ -79,56 +83,35 @@ public class LocacaoServiceTest {
 				
 		//acao
 		locacaoService.alugarFilme(user, filme);
-		
 	}
 	
-	/*Esse teste feito manual seria caso estivessemos esperando a excessao e retornando mensagem de ok,
-	porem caso nao estourasse excessao ainda retornaria como sucesso
-	Que esta errado, pois o nosso metodo "testLocacao_filmeSemEstoque2()" espera um filme sem estoque*/
+	//Forma Robusta -> nao precisa passar a excessao esperada no @Test, pois ja compara com a mensagem de erro
 	@Test
-	public void testLocacao_filmeSemEstoque2() {
-		//cenario
-		LocacaoService locacaoService = new LocacaoService();
-		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 0, 5.0);
+	public void testLocacao_usuarioVazio() throws FilmeSemEstoqueException {
+		// cenario
+		LocacaoService service = new LocacaoService();
+		Filme filme = new Filme("Filme 2", 1, 4.0);
 				
 		//acao
 		try {
-			locacaoService.alugarFilme(user, filme);
-		} catch (Exception e) {
-			assertThat(e.getMessage(), is("Filme sem estoque"));
+			service.alugarFilme(null, filme);
+			fail();
+		} catch (LocadoraException e) {
+			assertThat(e.getMessage(), is("Usuario Vazio"));
 		}
-		
+
 	}
 	
-	/*correcao do testLocacao_filmeSemEstoque2() que retorna um falso positivo(um teste que nao deria passar, mas passou)*/
+	//Forma nova -> espera o erro antes da execucao do metodo
 	@Test
-	public void testLocacao_filmeSemEstoque3() {
+	public void testLocacao_FilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
 		//cenario
-		LocacaoService locacaoService = new LocacaoService();
-		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 0, 5.0);
-				
-		//acao
-		try {
-			locacaoService.alugarFilme(user, filme);
-			fail("Deveria ter lancado uma excessao");
-		} catch (Exception e) {
-			assertThat(e.getMessage(), is("Filme sem estoque"));
-		}
+		LocacaoService service = new LocacaoService();
+		Usuario usuario = new Usuario("Fulano");
 		
-	}
-	
-	@Test
-	public void testLocacao_filmeSemEstoque4() throws Exception {
-		//cenario
-		LocacaoService locacaoService = new LocacaoService();
-		Usuario user = new Usuario("Fulano");
-		Filme filme = new Filme("Filme 1", 0, 5.0);
-		exception.expect(Exception.class);
-		exception.expectMessage("Filme sem estoque");
-				
+		exception.expect(LocadoraException.class);
+		exception.expectMessage("Filme vazio");
 		//acao
-		locacaoService.alugarFilme(user, filme);
+		service.alugarFilme(usuario, null);
 	}
 }
