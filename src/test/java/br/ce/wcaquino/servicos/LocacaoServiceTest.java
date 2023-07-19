@@ -28,9 +28,6 @@ public class LocacaoServiceTest {
 	
 	private LocacaoService locacaoService;
 	
-	private int contador;// o incremento nao funciona(1, 1, 1, 1, .... )
-	private static int contador2;// o incremento funciona(1, 2, 3, 4, .... )
-
 	@Rule
 	public ErrorCollector error = new ErrorCollector();
 	
@@ -39,26 +36,7 @@ public class LocacaoServiceTest {
 	
 	@Before
 	public void setup() {
-		System.out.println("Before");
 		locacaoService = new LocacaoService();
-		contador++;
-		contador2++;
-		System.out.println(contador + " - " + contador2);
-	}
-	
-	@After
-	public void tearDown() {
-		System.out.println("After");
-	}
-	
-	@BeforeClass
-	public static void setupClass() {
-		System.out.println("Before class");
-	}
-	
-	@After
-	public void tearDownClass() {
-		System.out.println("After class");
 	}
 	
 	//1 forma de tratar excecao: mostra que deu uma falha, porem nao se sabe onde.
@@ -90,12 +68,26 @@ public class LocacaoServiceTest {
 		Filme filme = new Filme("Filme 1", 2, 5.0);
 				
 		//acao
-		Locacao locacao;
-		locacao = locacaoService.alugarFilme(user, filme);
+		Locacao locacao = locacaoService.alugarFilme(user, filme);
 		//verificacao
 		assertThat(locacao.getValor(), is(equalTo(5.0)));
 		assertThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
 		assertThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
+		
+	}
+	//utilizando ErrorCollector
+	@Test
+	public void testLocacao2() throws Exception {
+		//cenario
+		Usuario user = new Usuario("Fulano");
+		Filme filme = new Filme("Filme 1", 2, 5.0);
+				
+		//acao
+		Locacao locacao = locacaoService.alugarFilme(user, filme);
+		//verificacao
+		error.checkThat(locacao.getValor(), is(equalTo(5.0)));
+		error.checkThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
+		error.checkThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
 		
 	}
 	
