@@ -11,7 +11,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -24,7 +23,6 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
-import br.ce.wcaquino.matcher.DiaSemanaMatcher;
 import static br.ce.wcaquino.matcher.MatchersProprios.*;
 import br.ce.wcaquino.utils.DataUtils;
 
@@ -56,8 +54,10 @@ public class LocacaoServiceTest {
 		Locacao locacao = locacaoService.alugarFilme(user, filmes);
 		//verificacao
 		error.checkThat(locacao.getValor(), is(equalTo(5.0)));
-		error.checkThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
-		error.checkThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
+//		error.checkThat(isMesmaData(locacao.getDataLocacao(), new Date()), is(true));
+//		error.checkThat(isMesmaData(locacao.getDataRetorno(), DataUtils.obterDataComDiferencaDias(1)), is(true));
+		error.checkThat(locacao.getDataLocacao(), ehHoje());
+		error.checkThat(locacao.getDataLocacao(), ehHojeComDiferencaDias(1));
 		
 	}
 	
