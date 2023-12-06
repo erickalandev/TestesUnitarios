@@ -22,7 +22,7 @@ public class LocacaoBuilder {
     public static void inicializarDadosPadroes(LocacaoBuilder builder) {
         builder.elemento = new Locacao();
         Locacao elemento = builder.elemento;
-        
+
         elemento.setUsuario(UsuarioBuilder.umUsuario().agora());
         elemento.setFilmes(Arrays.asList(FilmeBuilder.umFilme().agora()));
         elemento.setDataLocacao(new Date());

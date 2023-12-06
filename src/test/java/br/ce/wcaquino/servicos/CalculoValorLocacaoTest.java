@@ -7,6 +7,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import br.ce.wcaquino.daos.LocacaoDAO;
+import br.ce.wcaquino.daos.LocacaoDAOFake;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +48,8 @@ public class CalculoValorLocacaoTest {
 	@Before
 	public void setup() {
 		locacaoService = new LocacaoService();
+		LocacaoDAO dao = new LocacaoDAOFake();
+		locacaoService.setLocacaoDao(dao);
 	}
 
 	@Parameters(name = "{2}")
