@@ -3,8 +3,8 @@
   <groupId>br.ce.wcaquino</groupId>
   <artifactId>TestesUnitarios</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
-  <dependencies>
+
+    <dependencies>
 	  <dependency>
 		  <groupId>junit</groupId>
 		  <artifactId>junit</artifactId>
