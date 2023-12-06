@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import buildermaster.BuilderMaster;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
@@ -194,6 +195,10 @@ public class LocacaoServiceTest {
 		 */
 		assertThat(locacao.getDataRetorno(), caiNumaSegunda());
 
+	}
+
+	public static void main(String[] args) {
+		new BuilderMaster().gerarCodigoClasse(Locacao.class);
 	}
 
 }
