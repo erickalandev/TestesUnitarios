@@ -23,4 +23,10 @@ public class UsuarioBuilder {
     public Usuario agora() {
         return usuario;
     }
+
+    public UsuarioBuilder comNome(String nome) {
+        UsuarioBuilder builder = new UsuarioBuilder();
+        builder.usuario = new Usuario(nome);
+        return builder;
+    }
 }

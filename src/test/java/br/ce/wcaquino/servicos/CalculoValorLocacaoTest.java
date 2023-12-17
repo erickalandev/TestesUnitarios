@@ -22,6 +22,8 @@ import br.ce.wcaquino.entidades.Locacao;
 import br.ce.wcaquino.entidades.Usuario;
 import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
+import org.mockito.Mockito;
+
 
 @RunWith(Parameterized.class)
 public class CalculoValorLocacaoTest {
@@ -48,8 +50,10 @@ public class CalculoValorLocacaoTest {
 	@Before
 	public void setup() {
 		locacaoService = new LocacaoService();
-		LocacaoDAO dao = new LocacaoDAOFake();
+		LocacaoDAO dao = Mockito.mock(LocacaoDAO.class);
 		locacaoService.setLocacaoDao(dao);
+		SPCService spcService = Mockito.mock(SPCService.class);
+		locacaoService.setSpcService(spcService);
 	}
 
 	@Parameters(name = "{2}")

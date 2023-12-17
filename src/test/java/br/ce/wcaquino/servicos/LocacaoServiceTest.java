@@ -1,6 +1,7 @@
 package br.ce.wcaquino.servicos;
 
 import br.ce.wcaquino.builders.FilmeBuilder;
+import br.ce.wcaquino.builders.LocacaoBuilder;
 import br.ce.wcaquino.builders.UsuarioBuilder;
 import br.ce.wcaquino.daos.LocacaoDAO;
 import br.ce.wcaquino.daos.LocacaoDAOFake;
@@ -11,12 +12,10 @@ import br.ce.wcaquino.exceptions.FilmeSemEstoqueException;
 import br.ce.wcaquino.exceptions.LocadoraException;
 import br.ce.wcaquino.utils.DataUtils;
 import buildermaster.BuilderMaster;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -33,6 +32,12 @@ public class LocacaoServiceTest {
 
 	private LocacaoService locacaoService;
 
+	private LocacaoDAO dao;
+
+	private SPCService spcService;
+
+	private EmailService emailService;
+
 	@Rule
 	public ErrorCollector error = new ErrorCollector();
 
@@ -42,8 +47,12 @@ public class LocacaoServiceTest {
 	@Before
 	public void setup() {
 		locacaoService = new LocacaoService();
-		LocacaoDAO dao = new LocacaoDAOFake();
+		dao = Mockito.mock(LocacaoDAO.class);
 		locacaoService.setLocacaoDao(dao);
+		spcService = Mockito.mock(SPCService.class);
+		locacaoService.setSpcService(spcService);
+		emailService = Mockito.mock(EmailService.class);
+		locacaoService.setEmailService(emailService);
 	}
 
 	@Test
@@ -199,4 +208,53 @@ public class LocacaoServiceTest {
 
 	}
 
+	@Test
+	public void naoDeveAlugarFilmeNegativadoSPC() throws FilmeSemEstoqueException {
+		//cenario
+		Usuario usuario = UsuarioBuilder.umUsuario().agora();
+		//forcar erro com usuario nao esperado
+//		Usuario usuario2 = UsuarioBuilder.umUsuario().comNome("Usuario 2").agora();
+		List<Filme> filmes = Arrays.asList(FilmeBuilder.umFilme().agora());
+
+		Mockito.when(spcService.possuiNegativacao(usuario)).thenReturn(true);
+		//acao
+		//dessa forma pode ocorrer um falso positivo
+//		exception.expect(LocadoraException.class);
+//		exception.expectMessage("Usuario negativado");
+
+		//para corrigir o falso positivo, criasse o try catch
+		try {
+			locacaoService.alugarFilme(usuario,filmes);
+			//verificacao
+			Assert.fail();//garante que se passar no primeiro erro e nao estourar, ele valida se realmente nao teve erro
+		}catch (LocadoraException e) {
+			Assert.assertThat(e.getMessage(), is("Usuario negativado"));
+		}
+		Mockito.verify(spcService).possuiNegativacao(usuario);
+		//Mockito.verify(spcService).possuiNegativacao(usuario2); //dessa forma estoura o erro gracas ao trycatch pois era esperado o usuario 1, sendo que sem o try catch da o falso positivo
+	}
+
+	@Test
+	public void deveEnviarEmailParaLocacoesAtrasadas() {
+		//cenario
+		Usuario usuario = UsuarioBuilder.umUsuario().agora();
+		Usuario usuario2 = UsuarioBuilder.umUsuario().comNome("usuario 2").agora();
+		Usuario usuario3 = UsuarioBuilder.umUsuario().comNome("usuario 3").agora();
+		List<Locacao> locacoes = Arrays.asList(
+				LocacaoBuilder.umLocacao().atrasado().comUsuario(usuario).agora(),
+				LocacaoBuilder.umLocacao().comUsuario(usuario2).agora(),
+				LocacaoBuilder.umLocacao().atrasado().comUsuario(usuario3).agora());
+		Mockito.when(dao.obterLocacoesPendentes()).thenReturn(locacoes);
+
+		//acao
+		locacaoService.notificarAtrasos();
+
+		//verificar
+		Mockito.verify(emailService, Mockito.times(2)).notificarAtraso(Mockito.any(Usuario.class));
+		Mockito.verify(emailService).notificarAtraso(usuario);
+		Mockito.verify(emailService, Mockito.atLeastOnce()).notificarAtraso(usuario3);
+		Mockito.verify(emailService, Mockito.never()).notificarAtraso(usuario2);
+		Mockito.verifyNoMoreInteractions(emailService);
+
+	}
 }
